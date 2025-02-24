@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books</title>
+    <style>
+        body {
+            background-color: #FFF5CC;
+            color: #5D4037;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            background-color: #FFD700;
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #FFECB3;
+        }
+        th, td {
+            border: 1px solid #5D4037;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bookstore</h1>
+    <table>
+        <tr>
+            <th>Category</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Year</th>
+            <th>Price</th>
+        </tr>
+        <tbody id="book-list"></tbody>
+    </table>
+
+    <script>
+        fetch("books.xml")
+            .then(response => response.text())
+            .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+            .then(xmlDoc => {
+                let books = xmlDoc.getElementsByTagName("book");
+                let output = "";
+                for (let i = 0; i < books.length; i++) {
+                    let category = books[i].getAttribute("category");
+                    let title = books[i].getElementsByTagName("title")[0].textContent;
+                    let author = books[i].getElementsByTagName("author")[0].textContent;
+                    let year = books[i].getElementsByTagName("year")[0].textContent;
+                    let price = books[i].getElementsByTagName("price")[0].textContent;
+                    
+                    output += `<tr>
+                        <td>${category}</td>
+                        <td>${title}</td>
+                        <td>${author}</td>
+                        <td>${year}</td>
+                        <td>$${price}</td>
+                    </tr>`;
+                }
+                document.getElementById("book-list").innerHTML = output;
+            })
+            .catch(error => {
+                console.error("Error loading XML:", error);
+                document.getElementById("book-list").innerHTML = "<tr><td colspan='5'>Error loading XML file.</td></tr>";
+            });
+    </script>
+
+</body>
+</html>
