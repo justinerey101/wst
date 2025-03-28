@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: Verdana, sans-serif; 
+            margin: 0; 
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+        }
+        .container { text-align: center; }
+        .slideshow-container {
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .mySlides { display: none; }
+        img { 
+            width: 100%; 
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .text {
+            color: #fff;
+            font-size: 18px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 12px 0;
+            text-align: center;
+        }
+        .dot {
+            cursor: pointer;
+            height: 12px;
+            width: 12px;
+            margin: 10px 5px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.6s ease;
+        }
+        .active, .dot:hover {
+            background-color: #ff4d4d;
+            box-shadow: 0 0 10px #ff4d4d;
+        }
+        .fade {
+            animation-name: fade;
+            animation-duration: 1.5s;
+        }
+        @keyframes fade {
+            from { opacity: .4; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slideshow-container" id="slideshow-container"></div>
+        <div id="dots-container"></div>
+    </div>
+    <script>
+        let slideIndex = 0;
+
+        function fetchImages() {
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', './images.xml', true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    let xmlDoc = xhr.responseXML;
+                    let images = xmlDoc.getElementsByTagName('image');
+                    let slideshowContainer = document.getElementById('slideshow-container');
+                    let dotsContainer = document.getElementById('dots-container');
+
+                    if (images.length === 0) {
+                        console.error("No images found in XML.");
+                        return;
+                    }
+
+                    for (let i = 0; i < images.length; i++) {
+                        let url = images[i].getElementsByTagName('url')[0].textContent;
+                        let caption = images[i].getElementsByTagName('caption')[0].textContent;
+
+                        let slide = document.createElement('div');
+                        slide.className = 'mySlides fade';
+                        slide.innerHTML = `
+                            <img src="${url}" alt="Slide ${i + 1}">
+                            <div class="text">${caption}</div>
+                        `;
+                        slideshowContainer.appendChild(slide);
+
+                        let dot = document.createElement('span');
+                        dot.className = 'dot';
+                        dot.onclick = function () { currentSlide(i + 1); };
+                        dotsContainer.appendChild(dot);
+                    }
+                    slideIndex = 0;
+                    showSlides();
+                }
+            };
+            xhr.send();
+        }
+
+        function showSlides() {
+            let slides = document.getElementsByClassName("mySlides");
+            let dots = document.getElementsByClassName("dot");
+
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1; }
+            slides[slideIndex - 1].style.display = "block";
+
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].className = dots[i].className.replace(" active", "");
+            }
+            dots[slideIndex - 1].className += " active";
+            setTimeout(showSlides, 3000);
+        }
+
+        fetchImages();
+    </script>
+</body>
+</html>
